@@ -1,0 +1,49 @@
+# SOLUTION:
+Step 1 - Dockerfile yaz:
+``` 
+FROM python:alpine
+COPY requirements.txt requirements.txt  # (önceye koydum her build te tekrar indirmesin diye)
+RUN pip install -r requirements.txt
+WORKDIR /app
+COPY . app
+EXPOSE 80
+CMD python ./bookstore-api.py
+
+Step 2 - docker build -t bookstore . # web image oluştu
+step 3 - docker network create bookstore
+step 4 - docker volume create mysqlvolume
+step 5 - docker run --name database -v mysqlvolume:/var/lib/mysql --net bookstore -e MYSQL_ROOT_PASSWORD=Aa123 -e MYSQL_USER='clarusway' -e MYSQL_PASSWORD='Clarusway_1' -e MYSQL_DATABASE='bookstore_db' -d mysql:5.7
+step 6 - docker run --name bookstore --net bookstore -p 80:80 bookstore
+step 7 - docker-compose.yaml(yml) oluştur
+step 8 - docker-compose up 
+step 9 - docker-compose down
+step 10 - docker-compose up --build # bu command ile önce image i build eder
+```
+
+## commands
+
+- docker network create bookstore #user deifne network olmazsa dns çözümü default network yapamaz. uygulamamı göremem
+- docker network ls
+- docker volume create mysqlvolume # bu volume vermezsek mysql container kapanınca tüm bilgiler de gider.
+- docker run --name database -v mysqlvolume:/var/lib/mysql --net bookstore -e MYSQL_ROOT_PASSWORD=Aa123 -e MYSQL_USER='clarusway' -e MYSQL_PASSWORD='Clarusway_1' -e MYSQL_DATABASE'bookstore_db' -d mysql:5.7 
+## Not:(volume nereye bağlayacağımı (-v mysqlvolume:/var/lib/mysql) duckerhub daki mysql sayfasından buldum.(https://hub.docker.com/_/mysql)
+## mysql de mandotory yani mecburi bir ENV var o da root password (MYSQL_ROOT_PASSWORD). Bu olamzsa mysql container çalışmıyor.Mysql container çalışınca silinmiyor ancak başka bir terminal açarak siliniyor. ama force ile silebilirsin.
+Ayrıca yukarıdaki komutta .py deki koddaki ENV lerin value larını girdim ancak bu ENV ler yine bu https://hub.docker.com/_/mysql adresde ki isimler (MYSQL_USER, MYSQL_PASSWORD,MYSQL_DATABASE)olmalı yoksa mysql tanımaz value ları da .py deki kodumdaki değerler olamlıki web server ım mysql data ma bağlanabilsin.)
+# Gerekli bazı docker commands:
+
+- docker ps -a (çalışan cont gösterir)
+- docker rm (container adı ya da numrasından bir kaçtanesini yaz)
+- docker build -t bookstore .(Dockerfile ve .py nin olduğu dosyadan bu komut çalışınca image 'ım oluşur.)
+
+# Image ducker hube 'a gönderme:
+- docker login (user:btuldurankaplan , password:....)
+- docker build -t betuldurankaplan/bookstore .
+- docker push betuldurankaplan/bookstore
+- docker image ls
+- docker image rm (adı ya da numarası)
+- docker rm -f $(docker ps -aq) #Her container ı siler.
+
+
+# How to curl with Content-Type?
+book store app de cli dan kitap ekleyebilirim:
+- curl -H "Content-Type: application/json" -X POST -d '{"title":"animals farm", "author":"George Orwell","is_sold":"false"}' localhost(puplic-ip)/books

@@ -1,0 +1,4 @@
+How to curl with Content-Type?
+book store app de cli dan kitap ekleyebilirim:
+curl -H "Content-Type: application/json" -X POST -d '{"title":"animals farm", "author":"George Orwell","is_sold":"false"}' localhost(puplic-ip)/books
+curl -H "Content-Type: application/json" -X POST -d '{"title":"animals farm", "author":"George Orwell","is_sold":"false"}' 34.230.82.148/books
